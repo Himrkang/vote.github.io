@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>东莞市既有住宅增设电梯投票表决计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .law-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .law-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .law-box p {
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .input-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .input-container h2 {
+            font-size: 18px;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        th {
+            background: #f0f4ff;
+            font-weight: bold;
+            color: #333;
+        }
+        .floor-col {
+            background: #fafafa;
+            font-weight: bold;
+        }
+        .same-owner {
+            background: #fff3cd;
+        }
+        .vote-select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .vote-select.undisclosed {
+            background: #f5f5f5;
+            color: #999;
+        }
+        .vote-select.agree {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .vote-select.disagree {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .result-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .result-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .result-card h4 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .result-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+        .result-card .percentage {
+            font-size: 16px;
+            color: #666;
+        }
+        .result-card .threshold {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        .status-box {
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .status-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+        .status-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffc107;
+        }
+        .detail-result {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .detail-result h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-item .label {
+            color: #666;
+        }
+        .detail-item .value {
+            font-weight: bold;
+        }
+        .detail-item .pass {
+            color: #28a745;
+        }
+        .detail-item .fail {
+            color: #dc3545;
+        }
+        .detail-item .neutral {
+            color: #ff9800;
+        }
+        .calculate-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .calculate-btn:hover {
+            background: #0d47a1;
+        }
+        .summary-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .legend-color.undisclosed { background: #f5f5f5; border: 1px solid #ddd; }
+        .legend-color.agree { background: #e8f5e9; }
+        .legend-color.disagree { background: #ffebee; }
+        @media (max-width: 768px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            table {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>东莞市既有住宅增设电梯投票表决计算器</h1>
+        <p>《东莞市既有住宅增设电梯管理办法（修订）》 本办法自 2021 年 5 月 3 日施行，有效期至2026 年 5 月 2 日</p>
+    </div>
+
+    <div class="law-box">
+        <h3>法规表决要求（第六条）</h3>
+        <p>由本单元或者本幢房屋专有部分面积占比三分之二以上的业主且人数占比三分之二以上的业主参与表决，经参与表决专有部分面积四分之三以上的业主且参与表决人数四分之三以上的业主同意。</p>
+    </div>
+
+    <div class="input-container">
+        <h2>输入每户投票情况</h2>
+        <table id="input-table">
+            <thead>
+                <tr>
+                    <th>房号</th>
+                    <th>投票情况</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-room="205">
+                    <td class="floor-col same-owner">205 <span style="color:#856404;font-size:12px;">(与206同一业主)</span></td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="2" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="206">
+                    <td class="floor-col same-owner">206 <span style="color:#856404;font-size:12px;">(与205同一业主)</span></td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="2" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="305">
+                    <td class="floor-col">305</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="3" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="306">
+                    <td class="floor-col">306</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="3" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="405">
+                    <td class="floor-col">405</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="4" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="406">
+                    <td class="floor-col">406</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="4" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="505">
+                    <td class="floor-col">505</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="5" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="506">
+                    <td class="floor-col">506</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="5" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="605">
+                    <td class="floor-col">605</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="6" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="606">
+                    <td class="floor-col">606</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="6" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="705">
+                    <td class="floor-col">705</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="7" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="706">
+                    <td class="floor-col">706</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="7" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="805">
+                    <td class="floor-col">805</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="8" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="806">
+                    <td class="floor-col">806</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="8" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="905">
+                    <td class="floor-col">905</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="9" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr data-room="906">
+                    <td class="floor-col">906</td>
+                    <td>
+                        <select class="vote-select undisclosed" data-floor="9" onchange="updateSelectStyle(this)">
+                            <option value="undisclosed" selected>未表态</option>
+                            <option value="agree">同意</option>
+                            <option value="disagree">不同意</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="summary-legend">
+            <div class="legend-item"><div class="legend-color undisclosed"></div> 未表态（未参与表决）</div>
+            <div class="legend-item"><div class="legend-color agree"></div> 同意</div>
+            <div class="legend-item"><div class="legend-color disagree"></div> 不同意</div>
+        </div>
+        <button class="calculate-btn" onclick="calculate()">计算投票结果</button>
+    </div>
+
+    <div class="result-container" id="result-container" style="display: none;">
+        <div class="result-title">投票表决结果</div>
+        
+        <div class="status-box" id="status-box"></div>
+        
+        <div class="result-grid">
+            <div class="result-card">
+                <h4>总户数</h4>
+                <div class="value" id="total-households">16</div>
+                <div class="threshold">户</div>
+            </div>
+            <div class="result-card">
+                <h4>未表态户数</h4>
+                <div class="value" id="undisclosed-households">0</div>
+                <div class="percentage" id="undisclosed-households-pct">0%</div>
+            </div>
+            <div class="result-card">
+                <h4>参与表决户数</h4>
+                <div class="value" id="voting-households">0</div>
+                <div class="percentage" id="voting-households-pct">0%</div>
+                <div class="threshold">要求 ≥ 66.67% (≥12户)</div>
+            </div>
+            <div class="result-card">
+                <h4>同意户数</h4>
+                <div class="value" id="agree-households">0</div>
+                <div class="percentage" id="agree-households-pct">0%</div>
+                <div class="threshold">占参与表决</div>
+            </div>
+            <div class="result-card">
+                <h4>不同意户数</h4>
+                <div class="value" id="disagree-households">0</div>
+                <div class="percentage" id="disagree-households-pct">0%</div>
+                <div class="threshold">占参与表决</div>
+            </div>
+        </div>
+
+        <div class="detail-result">
+            <h4>详细判断结果</h4>
+            <div class="detail-item">
+                <span class="label">1. 参与表决户数是否满足 ≥ 2/3？</span>
+                <span class="value" id="condition1"></span>
+            </div>
+            <div class="detail-item">
+                <span class="label">2. 同意户数是否满足 ≥ 3/4（占参与表决）？</span>
+                <span class="value" id="condition2"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateSelectStyle(select) {
+            select.className = 'vote-select ' + select.value;
+        }
+
+        function calculate() {
+            const rows = document.querySelectorAll('#input-table tbody tr');
+            const totalHouseholds = rows.length;
+            let undisclosedHouseholds = 0;
+            let agreeHouseholds = 0;
+            let disagreeHouseholds = 0;
+
+            rows.forEach(row => {
+                const voteSelect = row.querySelector('.vote-select');
+                const vote = voteSelect.value;
+
+                if (vote === 'undisclosed') {
+                    undisclosedHouseholds++;
+                } else if (vote === 'agree') {
+                    agreeHouseholds++;
+                } else if (vote === 'disagree') {
+                    disagreeHouseholds++;
+                }
+            });
+
+            const votingHouseholds = totalHouseholds - undisclosedHouseholds;
+            const votingHouseholdsPct = totalHouseholds > 0 ? (votingHouseholds / totalHouseholds) * 100 : 0;
+            const agreeHouseholdsPct = votingHouseholds > 0 ? (agreeHouseholds / votingHouseholds) * 100 : 0;
+            const disagreeHouseholdsPct = votingHouseholds > 0 ? (disagreeHouseholds / votingHouseholds) * 100 : 0;
+
+            document.getElementById('total-households').textContent = totalHouseholds;
+            document.getElementById('undisclosed-households').textContent = undisclosedHouseholds;
+            document.getElementById('undisclosed-households-pct').textContent = '(' + (totalHouseholds > 0 ? (undisclosedHouseholds / totalHouseholds) * 100 : 0).toFixed(1) + '%)';
+            document.getElementById('voting-households').textContent = votingHouseholds;
+            document.getElementById('voting-households-pct').textContent = votingHouseholdsPct.toFixed(1) + '%';
+            document.getElementById('agree-households').textContent = agreeHouseholds;
+            document.getElementById('agree-households-pct').textContent = agreeHouseholdsPct.toFixed(1) + '%';
+            document.getElementById('disagree-households').textContent = disagreeHouseholds;
+            document.getElementById('disagree-households-pct').textContent = disagreeHouseholdsPct.toFixed(1) + '%';
+
+            const condition1 = votingHouseholdsPct >= 66.67;
+            const condition2 = agreeHouseholdsPct >= 75;
+
+            document.getElementById('condition1').textContent = condition1 ? '✓ 满足' : '✗ 不满足';
+            document.getElementById('condition1').className = 'value ' + (condition1 ? 'pass' : 'fail');
+            document.getElementById('condition2').textContent = condition2 ? '✓ 满足' : '✗ 不满足';
+            document.getElementById('condition2').className = 'value ' + (condition2 ? 'pass' : 'fail');
+
+            const statusBox = document.getElementById('status-box');
+
+            if (!condition1) {
+                statusBox.className = 'status-box status-pending';
+                statusBox.textContent = '⚠ 投票未通过：参与表决率不足2/3，请先动员更多业主参与表决！';
+            } else if (!condition2) {
+                statusBox.className = 'status-box status-fail';
+                statusBox.textContent = '✗ 投票未通过：虽已达到参与表决要求，但同意比例未达到3/4！';
+            } else {
+                statusBox.className = 'status-box status-pass';
+                statusBox.textContent = '✓ 投票通过！已满足所有表决要求！';
+            }
+
+            document.getElementById('result-container').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
